@@ -1,24 +1,6 @@
 import { Context } from "./types";
-import { gql } from "apollo-boost";
 import { saveNotes } from "../offline";
-
-const GET_NOTES = gql`
-  query GetNotes {
-    notes @client {
-      id
-      title
-      content
-    }
-  }
-`;
-
-export const NOTE_FRAGMENT = gql`
-  fragment NoteParts on Note {
-    id
-    title
-    content
-  }
-`;
+import { NOTE_FRAGMENT, GET_NOTES } from "./queries";
 
 export const resolvers = {
   Query: {
@@ -66,6 +48,20 @@ export const resolvers = {
       })
       saveNotes(cache);
       return updateNote;
+    },
+    onChange: (_: any, { name, value }: any, { cache }: any) => {
+      cache.writeData({
+        data: {
+          state: {
+            editor: {
+              [name]: value,
+              __typename: "EditorState"
+            },
+            __typename: "State"
+          }
+        }
+      });
+      return null;
     }
   }
 };

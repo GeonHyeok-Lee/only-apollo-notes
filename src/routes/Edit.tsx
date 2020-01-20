@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation } from "react-apollo";
 import { GET_NOTE, EDIT_NOTE } from "../apolloClient/queries";
@@ -12,9 +12,12 @@ const Edit: React.FC = () => {
     }
   });
   const [editNote] = useMutation(EDIT_NOTE);
-  const onSave = (title: string, content: string, id: number) => {
-    editNote({ variables: { id, title, content } });
-  };
+  const onSave = useCallback(
+    (title: string, content: string, id: number) => {
+      editNote({ variables: { id, title, content } });
+    },
+    [editNote]
+  );
   return (
     <>
       {!loading && data && (

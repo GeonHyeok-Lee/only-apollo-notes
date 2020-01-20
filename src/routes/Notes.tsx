@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-apollo";
 import { GET_NOTES } from "../apolloClient/queries";
-// import { ReactComponent as Plus } from "../components/plus.svg";
+import { NotesType } from "../apolloClient/types";
 
 const Header = styled.div`
   margin-bottom: 50px;
@@ -59,7 +59,7 @@ const NoteTitle = styled.span`
 `;
 
 const Notes: React.FC = () => {
-  const { data, loading } = useQuery(GET_NOTES);
+  const { data, loading } = useQuery<NotesType>(GET_NOTES);
   return (
     <>
       <Header>
@@ -73,7 +73,7 @@ const Notes: React.FC = () => {
       </Header>
       {!loading && data && (
         <NotesWrap>
-          {data.notes.map((note: any) => (
+          {data.notes.map(note => (
             <Link to={`/note/${note.id}`} key={note.id}>
               <Note>
                 <NoteTitle>{note.title}</NoteTitle>

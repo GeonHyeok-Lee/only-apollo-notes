@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import MarkdownRenderer from "react-markdown";
 import TextareaAutosize from "react-textarea-autosize";
+import { useQuery, useMutation } from "react-apollo";
+import { ON_CHANGE, GET_STATE } from "../apolloClient/queries";
 
 const TitleInput = styled(TextareaAutosize)`
   font-size: 50px;
   font-weight: 600;
   width: 100%;
+  font-family: "Noto Sans KR", sans-serif;
   &::placeholder {
     font-weight: 600;
   }
@@ -21,6 +24,7 @@ const ContentPreview = styled.div`
 const ContentInput = styled(TextareaAutosize)`
   font-size: 18px;
   margin-top: 15px;
+  font-family: "Noto Sans KR", sans-serif;
 `;
 
 const TitleContainer = styled.div`
@@ -38,33 +42,63 @@ type IProps = {
   onSave: (title: string, content: string, id: number) => void;
 };
 
-const Editor: React.FC<IProps> = ({ title, content, id, onSave }) => {
-  const [state, setState] = useState({
-    title: title || "",
-    content: content || "",
-    id: id || -1
-  });
-  const onInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+const Editor: React.FC<IProps> = ({ title, content, id = -1, onSave }) => {
+  const {
+    data: {
+      state: { editor }
+    }
+  }: any = useQuery(GET_STATE);
+  const [onChange] = useMutation(ON_CHANGE);
+  const onChangeApollo = useCallback(
+    (event: any) => {
+      const {
+        target: { value, name }
+      } = event;
+      onChange({
+        variables: {
+          value,
+          name
+        }
+      });
+    },
+    [onChange]
+  );
+
+  const onClick = useCallback(() => {
+    onSave(editor.title, editor.content, id);
+  }, [onSave, id, editor.title, editor.content]);
+
+  useEffect(() => {
+    if (title !== "" && content !== "") {
+      onChange({
+        variables: {
+          value: title,
+          name: "title"
+        }
+      });
+      onChange({
+        variables: {
+          value: content,
+          name: "content"
+        }
+      });
+    }
+  }, [onChange, title, content]);
+
+  const [text, setText] = useState("");
+  const onChangeReact = (event: any) => {
     const {
-      target: { value, name }
+      target: { value }
     } = event;
-    setState(prev => {
-      return {
-        ...prev,
-        [name]: value
-      };
-    });
-  };
-  const onClick = () => {
-    onSave(state.title, state.content, state.id);
+    setText(value);
   };
 
   return (
     <>
       <TitleContainer>
         <TitleInput
-          value={state.title}
-          onChange={onInputChange}
+          value={editor.title}
+          onChange={onChangeApollo}
           placeholder={"Untitled..."}
           name={"title"}
         />
@@ -72,15 +106,15 @@ const Editor: React.FC<IProps> = ({ title, content, id, onSave }) => {
       </TitleContainer>
       <ContentPreview>
         <ContentInput
-          value={state.content}
-          onChange={onInputChange}
+          value={text}
+          onChange={onChangeReact}
           placeholder={"# This supports markdown!"}
           name={"content"}
         />
-        <MarkdownRenderer source={state.content} className={"markdown"} />
+        <MarkdownRenderer source={editor.content} className={"markdown"} />
       </ContentPreview>
     </>
   );
 };
 
-export default Editor;
+export default React.memo(Editor);
