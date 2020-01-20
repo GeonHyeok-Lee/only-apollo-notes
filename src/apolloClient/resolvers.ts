@@ -1,5 +1,6 @@
 import { Context } from "./types";
 import { gql } from "apollo-boost";
+import { saveNotes } from "../offline";
 
 const GET_NOTES = gql`
   query GetNotes {
@@ -44,6 +45,7 @@ export const resolvers = {
           notes: [newNote, ...notes]
         }
       })
+      saveNotes(cache);
       return newNote;
     },
     editNote: (_: any, { id, title, content }: any, { cache }: any) => {
@@ -62,7 +64,8 @@ export const resolvers = {
         fragment: NOTE_FRAGMENT,
         data: updateNote
       })
-      return updateNote
+      saveNotes(cache);
+      return updateNote;
     }
   }
 };

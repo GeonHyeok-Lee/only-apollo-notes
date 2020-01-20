@@ -1,5 +1,5 @@
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { initialData } from "./apolloClient/cacheData";
+import { initialData } from "./apolloClient/initialData";
 import { resolvers } from "./apolloClient/resolvers";
 import { ApolloClient } from "apollo-boost";
 
