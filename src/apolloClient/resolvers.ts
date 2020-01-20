@@ -12,7 +12,7 @@ const GET_NOTES = gql`
 `;
 
 export const NOTE_FRAGMENT = gql`
-  fragment NotePars on Note {
+  fragment NoteParts on Note {
     id
     title
     content

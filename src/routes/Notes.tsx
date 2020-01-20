@@ -72,13 +72,15 @@ const Notes: React.FC = () => {
         <Subtitle>Taking notes while we learn.</Subtitle>
       </Header>
       {!loading && data && (
-        <>
+        <NotesWrap>
           {data.notes.map((note: any) => (
-            <Link to={`/edit/${note.id}`} key={note.id}>
-              <Note>{note.title}</Note>
+            <Link to={`/note/${note.id}`} key={note.id}>
+              <Note>
+                <NoteTitle>{note.title}</NoteTitle>
+              </Note>
             </Link>
           ))}
-        </>
+        </NotesWrap>
       )}
     </>
   );
